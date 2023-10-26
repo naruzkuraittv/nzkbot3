@@ -9,18 +9,16 @@ client.commands = new Map();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const command = require('./commands/${file}');
-    client.commands.set(command.data.name, command);
+	const command = require(`./commands/${file}`);
+	client.commands.set(command.data.name, command);
 }
 
 // When the client is ready
 client.once(Events.ClientReady, c => {
-    console.log(Ready! Logged in as ${c.user.tag});
+	console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
-client.on(Events.InteractionCreate, async interaction => {
-    if (!interaction.isCommand()) return;
-
+async function handleCommandInteraction(interaction) {
     const command = client.commands.get(interaction.commandName);
 
     if (!command) return;
@@ -30,6 +28,12 @@ client.on(Events.InteractionCreate, async interaction => {
     } catch (error) {
         console.error(error);
         await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+    }
+}
+
+client.on(Events.InteractionCreate, async interaction => {
+    if (interaction.isCommand()) {
+        await handleCommandInteraction(interaction);
     }
 });
 
