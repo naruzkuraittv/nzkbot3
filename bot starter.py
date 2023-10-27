@@ -1,10 +1,13 @@
 import os
 import subprocess
 import time
-import git
+import gitpy as git
 #curently only works for xayah bot by default, as this is run in her folder
 rebooting = False
 process = None
+wait = time.sleep(1)
+def wait():
+    wait
 def get_cwd():
     # Get the current working directory
     global cwd
@@ -26,10 +29,11 @@ def start_bot():
         process = subprocess.Popen(["powershell.exe", f"cd {cwd}; node ./bot.js"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         loop()
 
-
+ignore_first_output = True
 
 def loop():
     global process
+    global ignore_first_output
     while True:
         # print whatever comes from the ./bot.js file
         output = process.stdout.readline()
@@ -47,23 +51,11 @@ def loop():
         
         # If the bot exits with an error of b'[] exit' or b'[] stop' exit the loop and close the program
         elif output == b'': # specifically if theres a bot error, u can fix it with a git pull if it doesnt auto reboot within a minute.
-            #close all children processes then start bot
-            process.terminate()
-            print("Stopped Sub Process")
-            start_bot() #backup if somehow you get an error from the bot's commands 
-            print("Updating... coz something happened")
-
-            gitpull = git.cmd.Git().pull()
-            git.cmd.Git().pull()
-            print(f"Git pull: {gitpull}")
-            #wait 10 seconds
-            time.sleep(60) # 1 minute i asume you are gonna edit the code within a few minutes or so. and checks in 1 minute intervals.
-
+            #error()
+            print("Bot error")
         elif output == output == b'[] exit\n' or output == b'[] stop\n':
             process.terminate()
-            gitpull = git.cmd.Git().pull()
-            git.cmd.Git().pull()
-            print(f"Git pull: {gitpull}")
+            gitupdate()
             #wait 10 seconds
             time.sleep(43200, 0) # 12 hours
             
@@ -76,11 +68,27 @@ def loop():
         elif output == b'git_pull\n'or output == b'[] gitpull\n' or output == b'[] update\n':
             process.terminate()
             print("Updating...")
-            gitpull = git.cmd.Git().pull()
-            git.cmd.Git().pull()
-            print(f"Git pull: {gitpull}")
+            gitupdate()
             start_bot() # Restart the bot
+            
+def gitupdate():
+    gitpull = git.cmd.Git().pull()
+    git.cmd.Git().pull()
+    print(f"Git pull: {gitpull}")
+def error():
+    #close all children processes then start bot
+    if ignore_first_output == True:
+        ignore_first_output = False
+        #exit this elif statement and restart the loop
+    process.terminate()
+    print("Stopped Sub Process")
+    start_bot() #backup if somehow you get an error from the bot's commands 
+    print("Updating... coz something happened")
+
+    gitupdate()
+    #wait 10 seconds
+    time.sleep(60) # 1 minute i asume you are gonna edit the code within a few minutes or so. and checks in 1 minute intervals.
+
 if __name__ == "__main__":
     get_cwd()
     start_bot()
-    loop()

@@ -5,9 +5,13 @@ const { token } = require('./config.json');
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+// Initialize commands map
 client.commands = new Map();
+
+// Read command files
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
+// Loop to register commands
 for (const file of commandFiles) {
 	const command = require(`./commands/${file}`);
 	client.commands.set(command.data.name, command);
@@ -18,11 +22,10 @@ client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
+// Function to handle command interactions
 async function handleCommandInteraction(interaction) {
     const command = client.commands.get(interaction.commandName);
-
     if (!command) return;
-
     try {
         await command.execute(interaction);
     } catch (error) {
@@ -31,6 +34,7 @@ async function handleCommandInteraction(interaction) {
     }
 }
 
+// Event listener for interactions
 client.on(Events.InteractionCreate, async interaction => {
     if (interaction.isCommand()) {
         await handleCommandInteraction(interaction);
