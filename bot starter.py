@@ -2,7 +2,11 @@ import os
 import subprocess
 import time
 import gitpy as git
-#curently only works for xayah bot by default, as this is run in her folder
+import keyboard
+#start bot.js with node.js
+macro = keyboard.add_hotkey('ctrl+shift+q', lambda: keyboard.write('[] exit\n'))
+
+    #curently only works for xayah bot by default, as this is run in her folder
 rebooting = False
 process = None
 wait = time.sleep(1)
