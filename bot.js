@@ -29,37 +29,64 @@ function loadCommands(dir) {
         }
     }
 }
-//basicaly required to use this bot if you intend on adding or removing or editing commands
-function clearCommands() {
-    //base delete arguments for guild and global commands
-    rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: [] })
-    .then(() => console.log('Successfully deleted all guild commands.'))
-    .catch(console.error);
+async function clearCommands() {
+    // Fetch all guilds the bot is a member of
+    const guilds = await client.guilds.fetch();
 
-    // for global commands
-    rest.put(Routes.applicationCommands(clientId), { body: [] })
-    .then(() => console.log('Successfully deleted all application commands.'))
-    
-    .catch(console.error);
-};
-client.once(Events.ClientReady, async () => {
-    console.log('Ready!');
-    // basically reload discord's cache so u can use your new or editied commands
-    clearCommands();
-    // this actuialy sends the commands to discord's (the company's api servers) bot cache so you can actuially use new commands
-    // figuring out this actuially pissed me off
-    loadCommands(path.join(__dirname, 'commands'));
+    // Extract the IDs of these guilds
+    const guildIds = guilds.map(guild => guild.id);
 
-    //handshakes, and loads the commands for Discord
+    // Iterate over each guild ID and clear its commands
+    for (const guildId of guildIds) {
+        try {
+            await rest.put(
+                Routes.applicationGuildCommands(clientId, guildId), 
+                { body: [] }
+            );
+            console.log(`Successfully deleted all guild commands for guild ${guildId}.`);
+        } catch (error) {
+            console.error(`Failed to delete commands for guild ${guildId}:`, error);
+        }
+    }
+
+    // Clear global commands as well
     try {
         await rest.put(
-            Routes.applicationGuildCommands(clientId, guildId),
-            { body: commands },
+            Routes.applicationCommands(clientId), 
+            { body: [] }
         );
-        console.log('Successfully registered application commands.');
+        console.log('Successfully deleted all global application commands.');
     } catch (error) {
-        console.error(error);
+        console.error('Failed to delete global application commands:', error);
     }
+}
+async function registerCommandsForAllGuilds() {
+    // Fetch all guilds the bot is a member of
+    const guilds = await client.guilds.fetch();
+
+    // Iterate over each guild and register the commands
+    for (const guild of guilds.values()) {
+        try {
+            await rest.put(
+                Routes.applicationGuildCommands(clientId, guild.id),
+                { body: commands }
+            );
+            console.log(`Successfully registered commands for guild ${guild.id}.`);
+        } catch (error) {
+            console.error(`Failed to register commands for guild ${guild.id}:`, error);
+        }
+    }
+}
+
+client.once(Events.ClientReady, async () => {
+    console.log('Ready!');
+
+    // Load commands from the specified directory
+    loadCommands(path.join(__dirname, 'commands'));
+
+    // Clear commands from all guilds and then register new commands
+    await clearCommands();
+    await registerCommandsForAllGuilds();
 });
 
 client.on(Events.InteractionCreate, async interaction => {
