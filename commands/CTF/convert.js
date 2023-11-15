@@ -87,28 +87,46 @@ module.exports = {
 };
 
 async function handleD2H(interaction) {
-    const decimalNumber = interaction.options.getString('number');
-    const hexValue = parseInt(decimalNumber).toString(16);
-    await interaction.reply(`Decimal to Hex: ${hexValue}`);
-}
+    const decimalValues = interaction.options.getString('values').split(' ');
+    const hexOutput = decimalValues.map(val => '0x' + parseInt(val).toString(16)).join(' ');
+    await interaction.reply(`Decimal to Hex: ${hexOutput}`);
+} // fixed with 3.5 untested
 
 async function handleDAH(interaction) {
     const decimalValues = interaction.options.getString('values').split(' ');
-    const hexOutput = decimalValues.map(val => parseInt(val).toString(16)).join(' ');
+    const hexOutput = decimalValues.map(val => '0x' + val).join(' ');
     await interaction.reply(`Decimal as Hex: ${hexOutput}`);
-}
+} // fixed with 3.5 untested
 
 async function handleA2H(interaction) {
     const asciiText = interaction.options.getString('text');
-    const hexValue = asciiText.split('').map(char => char.charCodeAt(0).toString(16)).join(' ');
+    const hexValue = asciiText.split('').map(char => '0x' + char.charCodeAt(0).toString(16)).join(' ');
     await interaction.reply(`ASCII to Hex: ${hexValue}`);
-}
+} // fixed with 3.5 untested
 
 async function handleH2D(interaction) {
-    const hexNumber = interaction.options.getString('hex');
-    const decimalValue = parseInt(hexNumber, 16);
-    await interaction.reply(`Hex to Decimal: ${decimalValue}`);
-}
+    const inputString = interaction.options.getString('input');
+    const hexValues = inputString.split(' ');
+    const decimalValues = [];
+    for (const hexValue of hexValues) {
+        let decimalValue;
+        if (hexValue.startsWith('0x')) {
+            // Remove '0x' prefix and convert to decimal
+            decimalValue = parseInt(hexValue.substring(2), 16);
+        } else {
+            // Convert the value to decimal, assuming it's in hex format
+            decimalValue = parseInt(hexValue, 16);
+        }
+        if (!isNaN(decimalValue)) {
+            decimalValues.push(decimalValue);
+        } else {
+            console.error("Invalid input value:", hexValue);
+        }
+    }
+    await interaction.reply(`Hex to Decimal: ${decimalValues.join(' ')}`);
+} // fixed with 3.5 untested
+
+
 
 async function handleH2A(interaction) {
     const hexValues = interaction.options.getString('hex').split(' ');
