@@ -24,14 +24,13 @@ function loadCommands(dir) {
         }
     }
 }
-
 async function clearAndRegisterCommands() {
     const guilds = await client.guilds.fetch();
     const rest = new REST({ version: '9' }).setToken(token);
 
     for (const guild of guilds.values()) {
         try {
-            // Clear and register commands per guild
+            // Clears?
             await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: [] });
             await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: commands });
         } catch (error) {
