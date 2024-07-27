@@ -2,7 +2,13 @@ const { SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 const fs = require('fs');
 
-const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+let config;
+try {
+    config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+} catch (error) {
+    console.error('Error reading config.json:', error);
+    process.exit(1);
+}
 
 const clientId = config.twclientId;
 const clientSecret = config.twclientSecret;
@@ -43,15 +49,10 @@ async function isTwitchChannelLive(username, accessToken) {
     }
 }
 
-function random_type() {
-    const types = ['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
-    return types[Math.floor(Math.random() * types.length)];
-}
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('iskittlive')
-        .setDescription('is kitt live?'),
+        .setDescription('Check if Kitt is live on Twitch'),
     async execute(interaction) {
         const accessToken = await getAccessToken();
         if (!accessToken) {
@@ -62,7 +63,6 @@ module.exports = {
         if (live) {
             await interaction.reply('The Twitch channel is live right now!');
         } else {
-            // 3% chance to send the special message
             if (Math.random() < 0.03) {
                 await interaction.reply('The Twitch channel is not live right now! QwQ');
             } else {
