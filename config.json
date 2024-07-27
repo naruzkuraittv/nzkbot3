@@ -1,5 +1,6 @@
 {
     "token": "MTA3MzUxMDAwODQwMDExNzc5MA.Gg7FAX.KG8QrCKtKI5BbhD4ZNSnsWNNj07qtGZKl-B35s",
-    "clientId": "1073510008400117790"
-    "this is just an example of what it looks like, i totally didnt public this 9 months later forgetting to include config.json or .env in .gitignore":"0"
+    "clientId": "1073510008400117790",
+    "test for git pull this is just an example of what it looks like, i totally didnt public this 9 months later forgetting to include config.json or .env in .gitignore":"0"
+   
 }
