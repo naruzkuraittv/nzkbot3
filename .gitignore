@@ -30,3 +30,5 @@ start.sh
 node_modules/
 .env
 config.json
+config.json
+config.json
