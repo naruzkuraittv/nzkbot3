@@ -26,6 +26,7 @@ replay_pid*
 start.ps1
 start.sh
 
+
+node_modules/
+.env
 config.json
-
-
